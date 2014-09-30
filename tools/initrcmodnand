@@ -1,0 +1,22 @@
+	
+	exec /sbin/busybox umount /system
+	exec /sbin/busybox umount /data
+	exec /sbin/busybox umount /cache
+	# wait for sdcard
+	# wait has a timeot of 5 seconds.
+	# calling it 4 times allows 20 seconds for the mmcblk1p2 partition to show up
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p2
+	# SD Card Speed Fix	
+	write /sys/devices/virtual/bdi/179:0/read_ahead_kb 2048
+	# File system check
+	exec /sbin/busybox sh -c "/sbin/e2fsck -p /dev/block/mmcblk1p2 > /fsck.log" 
+	# mount the 1st (NativeSD) SD-EXT partition 
+	mkdir /MultiBoot
+	mount ext4  /dev/block/mmcblk1p2 /MultiBoot wait noatime nodiratime barrier=0
+	# mount the system and data dir 
+	exec /sbin/busybox mount --bind /MultiBoot/ROMNAME/system /system	
+	exec /sbin/busybox mount --bind /MultiBoot/ROMNAME/data /data	
+	exec /sbin/busybox mount --bind /MultiBoot/ROMNAME/cache /cache

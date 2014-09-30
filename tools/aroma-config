@@ -1,0 +1,203 @@
+##
+#
+# AROMA Installer - Configuration Script
+#       (c) 2011 by Ahmad Amarullah
+#        amarullz - xda-developers
+#
+#     NativeSD method by securecrt
+#     MultiBoot method by Ever_Never
+#
+#     Dual Installer by Xylograph 
+#
+##
+
+##
+# Calibrate Touchscreen
+#-------- Uncomment This to insert calibrating data:
+calibrate("1.6834","18","0.9457","25");
+##
+
+##
+# Initializing Rom Information
+##
+
+ini_set("rom_name",             "MIUI");
+ini_set("rom_version",          "4.2.2");
+ini_set("rom_author",           "Ever_Never");
+ini_set("rom_device",           "Lenovo");
+ini_set("rom_date",             "TODAY");
+
+##
+# Show Simple Splash
+#
+splash(
+  #-- Duration 2000ms / 2 seconds
+    5000,
+  
+  #-- <AROMA Resource Dir>/sample.png
+    "sample"
+);
+
+##
+# Set Small Font to Support all fonts
+#
+fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "12" ); #-- Use sets of font (Font Family)
+
+
+##
+# Set Language & Font Family
+#
+  loadlang("langs/cn.lang");
+fontresload( "0", "ttf/DroidSansFallback.ttf;ttf/DroidSans.ttf", "12" ); #-- "0" = Small Font
+fontresload( "1", "ttf/DroidSansFallback.ttf;ttf/DroidSans.ttf", "18" ); #-- "1" = Big Font
+
+###################################################################################################################
+#
+# STEP 1 - SELECT THEME
+#
+theme("miui4");
+
+###################################################################################################################
+#
+# STEP 2 - SHOW ROM INFORMATION
+#
+viewbox(
+  #-- Title
+    "欢迎!",
+
+  #-- Text
+    "你将要 <b>"+
+	  #-- Get Config Value
+	  ini_get("rom_name")+
+	"</b> for <b>"+ini_get("rom_device")+"</b>.\n\n"+
+	
+      "  固件版本\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "  固件作者:\t <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
+      "  制作日期\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n"+
+      
+       "system空间大小\t: "+getdisksize("/system","m")+" MB\n"+
+      "\t 空间剩余\t: "+    getdiskfree("/system","m")+" MB\n\n"+
+
+      "data空间大小\t: "+getdisksize("/data","m")+" MB\n"+
+      "\t 空间剩余\t: "+    getdiskfree("/data","m")+" MB\n\n"+
+
+      
+      "SD卡总空间\t\t: "+getdisksize("/sdcard","m")+" MB\n"+
+	  "\t 空闲空间\t: "+     getdiskfree("/sdcard","m")+" MB\n\n"+
+
+
+    "点击下一步继续安装...",
+
+  #-- Icon
+    "@welcome"
+);
+agreebox(
+  #-- Title
+    "系统要求",
+  #-- Subtitle / Description
+    "请仔细阅读:",
+  #-- Icon
+    "@alert",
+  #-- Text Content ( Read from <AROMA Resource Dir>/readme.txt )
+    resread("requirements.txt"),
+  #-- Checkbox Text
+    "我已经满足上面的系统要求!",
+  #-- Unchecked Alert Message
+    "请再次仔细阅读"
+);
+
+textbox(
+  #-- Title
+    "更新日志",
+  
+  #-- Subtitle
+  "系统更新日志",
+  
+  #-- Icon
+    "@update",
+  
+  #-- Arg 4
+    resread("changelog.txt")
+);
+
+selectbox(
+  "刷机方式",
+  "请设置下面的选项:",
+  "icons/apps",
+  "mods.prop",
+ 
+# Install Location Selection
+ 
+  "请选择刷机方式","",2,
+  "正常刷机",
+    "正常刷入系统到机身", 0,
+  "DirectSD",
+    "刷入系统到内存卡第二第三分区（只能双系统）", 1,
+  "NativeSD",
+    "刷入系统到内存卡的第二分区（可以多系统）", 0,
+  "MultiBoot",
+    "刷入系统到手机data分区（可以多系统）", 0
+);
+
+selectbox(
+  #-- Title
+    "高级自定义",
+  
+  #-- Sub Title
+    "请选择ROM高级设置:",
+  
+  #-- Icon
+    "icons/personalize",
+  
+  #-- Will be saved in /tmp/aroma/advance.prop
+    "advance.prop",
+ 
+  #-- Group 1
+    "默认备份机身boot.img","",2,
+      "备份 Boot.img",
+        "如果你第一次使用多系统."+
+        "\n一定要选择这个!!!!（切换回原系统用）.\n切换器识别成NAND",                         1,
+      "不备份boot.img",
+        "如果你已经备份过了，请选择这个.",           0,
+  #-- Group 2
+    " DirectSD 如果你选择这种刷机方式，请一定选择！","",2,
+      "格式化内存卡第二第三分区 ",
+        "选着格式化第二第三分区.",          1,
+      "不格式化第二第三分区",
+        "选择将不格式化第二第三分区 .",         0,
+    #-- Group 3
+    "NativeSD 你可以选择此项格式化内存卡第二分区","",2,
+      "格式化内存卡第二分区 ",
+        "选择将格式内存卡第二分区（所有系统将丢失 慎选！！）.",          0,
+      "不格式化内存卡第二分区",
+        "默认选择不格式化 .",         1
+);
+
+viewbox(
+  "准备安装",
+  "所有信息已经收集.\n\n"+
+  "点击下一步开始安装...",
+  "icons/info"
+);
+
+install(
+  "安装",
+  "正在刷机中...\n请等待...",
+  "icons/install"
+);
+
+# Set Next Text to 'Finish'
+ini_set("text_next", "完成");
+
+			checkviewbox("安装完毕","	<#selectbg_g><b>祝贺...</b></#>\n\n"+
+													"刷机完毕..\n\n\n\n\n"+
+													"<#selectbg_g><b>欢迎使用EverNever_NCWU制作的ROM，有问题反馈哦！</b></#>\n\n",
+													"@welcome","Reboot device.","1","reboot_it");
+
+
+		#-- Check if reboot checkbox was checked
+		if getvar("reboot_it")=="1" then reboot("onfinish");
+			# reboot("onfinish");   - Reboot if anything finished
+			# reboot("now");        - Reboot Directly
+			# reboot("disable");    - If you set reboot("now") before, use this command to revert it.
+		endif;

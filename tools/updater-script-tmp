@@ -1,0 +1,231 @@
+##
+# AROMA Installer - Installer Script
+# (c) 2011 by Ahmad Amarullah
+# amarullz - xda-developers
+##
+
+ui_print("@-------------------------------");
+ui_print("@  Author Ever_Never  ");
+ui_print("@--------------------------------");
+
+run_program("/sbin/mkdir", "/tmp");
+
+##
+# BACKUP BOOT.IMG
+##
+
+if file_getprop("/tmp/aroma/advance.prop", "selected.1") == "1" then
+
+  ui_print("@  Backup Boot.img...");
+  run_program("/sbin/rm", "-rf" ,"/sdcard/MultiBoot/NAND/boot.img");
+  run_program("/sbin/mkdir", "-p" ,"/sdcard/MultiBoot/NAND");
+  run_program("/sbin/dd", "if=/dev/bootimg","of=/sdcard/MultiBoot/NAND/boot.img","bs=6291456c","count=1");
+  ui_print("@  Backup compeletely");
+
+
+endif;
+
+if file_getprop("/tmp/aroma/advance.prop", "selected.1") == "2" then
+
+  ui_print("@  Do not backup Boot.img...");
+
+endif;
+
+##
+# WIPE SDCARD PARTITIONS
+##
+
+if file_getprop("/tmp/aroma/advance.prop", "selected.2") == "1" then
+
+  ui_print("@  Wipe sdcard second and third EXT4 partitions...");
+  run_program("/sbin/mke2fs", "-t" ,"ext4","/dev/block/mmcblk1p2");
+  run_program("/sbin/mke2fs", "-t" ,"ext4","/dev/block/mmcblk1p3");
+  ui_print("@  Wipe compeletely");
+
+
+endif;
+
+if file_getprop("/tmp/aroma/advance.prop", "selected.2") == "2" then
+
+  ui_print("@  Do not wipe sdcard second and third EXT4 partitions...");
+
+
+endif;
+
+if file_getprop("/tmp/aroma/advance.prop", "selected.3") == "1" then
+
+  ui_print("@  Wipe sdcard second EXT4 partitions...");
+  run_program("/sbin/mke2fs", "-t" ,"ext4","/dev/block/mmcblk1p2");
+  ui_print("@  Wipe compeletely");
+
+
+endif;
+
+if file_getprop("/tmp/aroma/advance.prop", "selected.3") == "2" then
+
+  ui_print("@  Do not wipe sdcard second EXT4 partitions...");
+
+
+endif;
+
+##
+# NAND INSTALLATION
+##
+
+if
+    file_getprop("/tmp/aroma-data/mods.prop","selected.1") == "1"
+then 
+
+ui_print("@  Installing to NAND");
+ui_print("@  Mounting NAND partitions");
+ui_print("@  Mounting System");
+
+show_progress(0.9, 1200);
+package_extract_file("boot.img", "/dev/bootimg");
+package_extract_dir("data", "/data");
+package_extract_dir("system", "/system");
+show_progress(0.1, 5);
+
+
+endif;
+
+
+
+show_progress(0.2, 0);
+##
+# DirectSD INSTALL
+##
+
+if
+    file_getprop("/tmp/aroma-data/mods.prop","selected.1") == "2"
+then 
+
+ui_print("@  Installing to DirectSD");
+ui_print("@  Checking & Mounting EXT Partition");
+
+package_extract_file("kernel/DirectSD/boot.img", "/dev/bootimg");
+package_extract_file("installDirectSD.sh", "/tmp/installDirectSD.sh");
+set_perm(0,0, 0777, "/tmp/installDirectSD.sh");
+
+run_program("/tmp/installDirectSD.sh");
+
+if file_getprop("/tmp/nfo.prop","DirectSD") == "true" 
+
+then 
+
+show_progress(0.9, 1200);
+ui_print("@  Installing to DirectSD start...");
+package_extract_dir("kernel/DirectSD", "/boot");
+package_extract_dir("kernel/DirectSD", "/boot_dir");
+package_extract_dir("sdcard", "/sdcard");
+package_extract_dir("system", "/system");
+package_extract_dir("data", "/data");
+ui_print("@  Installing to DirectSD end...");
+
+show_progress(0.1, 5);
+
+else
+
+ui_print("@  can't find ext4 partition on your SDcard");
+ui_print("@  install failed");
+
+endif;
+
+endif;
+
+##
+# NativeSD INSTALL
+##
+
+if
+    file_getprop("/tmp/aroma-data/mods.prop","selected.1") == "3"
+then 
+
+ui_print("@  Installing to NativeSD");
+ui_print("@  Checking & Mounting EXT Partition");
+
+package_extract_file("kernel/bootsd/boot.img", "/dev/bootimg");
+package_extract_file("installNativeSD.sh", "/tmp/installNativeSD.sh");
+set_perm(0,0, 0777, "/tmp/installNativeSD.sh");
+
+run_program("/tmp/installNativeSD.sh");
+
+if file_getprop("/tmp/nfo.prop","NativeSD") == "true" 
+
+then 
+
+show_progress(0.9, 1200);
+ui_print("@  Installing to NativeSD start...");
+package_extract_dir("kernel/bootsd", "/boot");
+package_extract_dir("kernel/bootsd", "/boot_dir");
+package_extract_dir("sdcard", "/sdcard");
+package_extract_dir("system", "/system");
+package_extract_dir("data", "/data");
+ui_print("@  Installing to NativeSD end...");
+
+show_progress(0.1, 5);
+
+else
+
+ui_print("@  can't find ext4 partition on your SDcard");
+ui_print("@  install failed");
+
+endif;
+
+endif;
+
+##
+# MultiBoot INSTALL
+##
+
+if
+    file_getprop("/tmp/aroma-data/mods.prop","selected.1") == "4"
+then 
+
+ui_print("@  Installing to MultiBoot");
+ui_print("@  Checking & Mounting EXT Partition");
+
+package_extract_file("kernel/MultiBoot/boot.img", "/dev/bootimg");
+package_extract_file("installMultiBoot.sh", "/tmp/installMultiBoot.sh");
+set_perm(0,0, 0777, "/tmp/installMultiBoot.sh");
+
+run_program("/tmp/installMultiBoot.sh");
+
+if file_getprop("/tmp/nfo.prop","MultiBoot") == "true" 
+
+then 
+
+show_progress(0.9, 1200);
+ui_print("@  Installing to MultiBoot start...");
+package_extract_dir("kernel/MultiBoot", "/boot");
+package_extract_dir("kernel/MultiBoot", "/boot_dir");
+package_extract_dir("sdcard", "/sdcard");
+package_extract_dir("system", "/system");
+package_extract_dir("data", "/data");
+ui_print("@  Installing to MultiBoot end...");
+
+show_progress(0.1, 5);
+
+else
+
+ui_print("@  can't find ext4 partition on your SDcard");
+ui_print("@  install failed");
+
+endif;
+
+endif;
+
+
+ui_print("@  symlink") ;
+
+
+
+delete("/tmp");
+unmount("/system") ;
+unmount("/data") ;
+unmount("/ext4p");
+
+
+
+set_progress(1.0);
+ui_print("@  Installation complete... Please reboot...");

@@ -1,0 +1,14 @@
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p2
+	wait /dev/block/mmcblk1p3
+	wait /dev/block/mmcblk1p3
+	wait /dev/block/mmcblk1p3
+	wait /dev/block/mmcblk1p3
+	# SD Card Speed Fix	
+	write /sys/devices/virtual/bdi/179:0/read_ahead_kb 2048
+	# File system check
+	exec /sbin/busybox sh -c "/sbin/e2fsck -p /dev/block/mmcblk1p2 > /fsck.log" 
+	
+	
